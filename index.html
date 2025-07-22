@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Calculator by Tahmid</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Full Screen Calculator by Tahmid</title>
   <style>
     :root {
       --bg: #ffffff;
@@ -12,7 +13,6 @@
       --btn-active: #d0d0d0;
       --accent: #007bff;
     }
-
     body.dark {
       --bg: #1e1e1e;
       --text: #ffffff;
@@ -21,102 +21,127 @@
       --btn-active: #4c4c4c;
       --accent: #00aaff;
     }
-
     body {
       background: var(--bg);
       color: var(--text);
       font-family: Arial, sans-serif;
       margin: 0;
+      height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: flex-start;
+      padding: 0 5px 10px 5px;
+      box-sizing: border-box;
     }
-
     .top-bar {
       width: 100%;
       display: flex;
       justify-content: space-between;
-      padding: 10px;
+      padding: 10px 0;
+      max-width: 480px;
     }
-
     button.refresh, button.theme-toggle {
       background: var(--btn-bg);
       border: none;
-      padding: 10px;
-      font-size: 18px;
+      padding: 12px 20px;
+      font-size: 20px;
       cursor: pointer;
-      border-radius: 5px;
-    }
-
-    .calculator {
-      max-width: 350px;
-      width: 90%;
-      margin-top: 10px;
-    }
-
-    input {
-      width: 100%;
-      font-size: 28px;
-      padding: 15px;
-      margin-bottom: 10px;
-      border: none;
-      background: var(--btn-bg);
-      color: var(--text);
-    }
-
-    .buttons {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-
-    .buttons button {
-      font-size: 18px;
-      padding: 15px;
-      border: none;
-      background: var(--btn-bg);
-      color: var(--text);
       border-radius: 8px;
-      cursor: pointer;
+      user-select: none;
       transition: background 0.2s;
     }
-
+    button.refresh:hover, button.theme-toggle:hover {
+      background: var(--btn-hover);
+    }
+    .calculator {
+      max-width: 480px;
+      width: 100%;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #display {
+      width: 100%;
+      font-size: 36px;
+      padding: 20px 15px;
+      margin-bottom: 15px;
+      border-radius: 12px;
+      background: var(--btn-bg);
+      border: none;
+      color: var(--text);
+      text-align: right;
+      box-sizing: border-box;
+      user-select: none;
+    }
+    .buttons {
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      flex-grow: 1;
+    }
+    .buttons button {
+      font-size: 26px;
+      padding: 20px 0;
+      border: none;
+      background: var(--btn-bg);
+      color: var(--text);
+      border-radius: 12px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
     .buttons button:hover {
       background: var(--btn-hover);
     }
-
     .buttons button:active {
       background: var(--btn-active);
     }
-
+    .buttons button.equals {
+      grid-column: span 2;
+      background: var(--accent);
+      color: #fff;
+      font-weight: bold;
+    }
     .history {
       margin-top: 15px;
-      background: var(--btn-bg);
-      padding: 10px;
-      border-radius: 8px;
-      max-height: 150px;
+      width: 100%;
+      max-height: 140px;
       overflow-y: auto;
-    }
-
-    .history h3 {
-      margin: 0 0 5px;
+      background: var(--btn-bg);
+      padding: 12px 15px;
+      border-radius: 12px;
+      box-sizing: border-box;
       font-size: 16px;
     }
-
+    .history h3 {
+      margin: 0 0 8px;
+      font-weight: 600;
+    }
     .history p {
-      margin: 3px 0;
-      font-size: 14px;
+      margin: 4px 0;
+      user-select: none;
+    }
+    /* Scrollbar for history */
+    .history::-webkit-scrollbar {
+      width: 6px;
+    }
+    .history::-webkit-scrollbar-thumb {
+      background: var(--accent);
+      border-radius: 10px;
     }
   </style>
 </head>
 <body>
   <div class="top-bar">
-    <button class="refresh" onclick="location.reload()">🔃</button>
-    <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+    <button class="refresh" onclick="location.reload()" title="Refresh Page">🔃</button>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Theme">🌙</button>
   </div>
-
+  
   <div class="calculator">
-    <input type="text" id="display" readonly />
+    <input type="text" id="display" readonly aria-label="Calculator display" />
     <div class="buttons">
       <button onclick="append('7')">7</button>
       <button onclick="append('8')">8</button>
@@ -150,76 +175,90 @@
 
       <button onclick="backspace()">⌫</button>
       <button onclick="clearDisplay()">C</button>
-      <button onclick="calculate()" style="grid-column: span 2; background: var(--accent); color: white;">=</button>
+      <button onclick="calculate()" class="equals">=</button>
     </div>
 
-    <div class="history">
+    <div class="history" aria-live="polite" aria-label="Calculation history">
       <h3>History</h3>
       <div id="history"></div>
     </div>
   </div>
 
-  <audio id="clickSound" src="https://cdn.pixabay.com/download/audio/2022/03/22/audio_aa16e50879.mp3?filename=click-124467.mp3"></audio>
+  <audio id="clickSound" src="https://cdn.pixabay.com/download/audio/2022/03/22/audio_aa16e50879.mp3?filename=click-124467.mp3" preload="auto"></audio>
 
   <script>
     const display = document.getElementById("display");
     const historyDiv = document.getElementById("history");
     const clickSound = document.getElementById("clickSound");
-
     let expression = "";
 
-    function append(value) {
+    function playClick() {
+      clickSound.currentTime = 0;
       clickSound.play();
+    }
+
+    function append(value) {
+      playClick();
       expression += value;
       display.value = expression;
     }
 
     function clearDisplay() {
-      clickSound.play();
+      playClick();
       expression = "";
       display.value = "";
     }
 
     function backspace() {
-      clickSound.play();
+      playClick();
       expression = expression.slice(0, -1);
       display.value = expression;
     }
 
     function sqrt() {
-      clickSound.play();
+      playClick();
       expression += "Math.sqrt(";
       display.value = expression;
     }
 
     function power() {
-      clickSound.play();
+      playClick();
       expression += "**";
       display.value = expression;
     }
 
     function percent() {
-      clickSound.play();
+      playClick();
       try {
-        const match = expression.match(/(.+)%(.+)/);
-        if (match) {
-          const a = eval(match[1]);
-          const b = eval(match[2]);
+        // Implement smart % like Google Calculator: a % b = a * b / 100
+        let parts = expression.split("%");
+        if (parts.length === 2) {
+          let a = eval(parts[0]);
+          let b = eval(parts[1]);
           expression = (a * b / 100).toString();
+          display.value = expression;
+        } else {
+          // If no valid format, just append %
+          expression += "%";
+          display.value = expression;
         }
-        display.value = expression;
       } catch {
         display.value = "Error";
+        expression = "";
       }
     }
 
     function calculate() {
-      clickSound.play();
+      playClick();
       try {
-        const result = eval(expression);
+        // Replace unicode division/multiplication for eval safety
+        let exp = expression.replace(/÷/g, "/").replace(/×/g, "*");
+        // Eval only on safe characters
+        // Note: 'Math.' is allowed for trig and sqrt functions
+        let result = eval(exp);
         addToHistory(expression + " = " + result);
         expression = result.toString();
-        display.value = result;
+        display.value = expression;
       } catch {
         display.value = "Error";
         expression = "";
@@ -229,14 +268,14 @@
     function addToHistory(entry) {
       let history = JSON.parse(localStorage.getItem("calcHistory")) || [];
       history.unshift(entry);
-      if (history.length > 10) history.pop();
+      if (history.length > 20) history.pop();
       localStorage.setItem("calcHistory", JSON.stringify(history));
       renderHistory();
     }
 
     function renderHistory() {
       const history = JSON.parse(localStorage.getItem("calcHistory")) || [];
-      historyDiv.innerHTML = history.map(item => `<p>${item}</p>`).join('');
+      historyDiv.innerHTML = history.map(item => `<p>${item}</p>`).join("");
     }
 
     function toggleTheme() {
@@ -259,4 +298,4 @@
     };
   </script>
 </body>
-  </html>
+</html>

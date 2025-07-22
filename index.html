@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculator - Tahmid</title>
+  <style>
+    body {
+      background: #f1f3f4;
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .calculator {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 320px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    #display {
+      width: 100%;
+      font-size: 28px;
+      padding: 15px;
+      border: none;
+      border-bottom: 2px solid #ccc;
+      text-align: right;
+      outline: none;
+      color: #202124;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 18px;
+      font-size: 18px;
+      background: #f1f3f4;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      color: #202124;
+    }
+
+    button:hover {
+      background: #dadce0;
+    }
+
+    button.operator {
+      color: #1a73e8;
+      font-weight: bold;
+    }
+
+    button.equal {
+      background: #1a73e8;
+      color: #fff;
+    }
+
+    button.equal:hover {
+      background: #1967d2;
+    }
+
+    .history {
+      background: #fff;
+      width: 320px;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .history h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: #444;
+    }
+
+    .history ul {
+      list-style: none;
+      padding: 0;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .history li {
+      font-size: 16px;
+      padding: 5px 0;
+      border-bottom: 1px solid #eee;
+      color: #202124;
+    }
+
+    .clear-history {
+      margin-top: 10px;
+      background: #e53935;
+      color: white;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .clear-history:hover {
+      background: #c62828;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="calculator">
+    <input type="text" id="display" readonly />
+    <div class="buttons">
+      <button onclick="clearDisplay()" class="operator">C</button>
+      <button onclick="append('(')" class="operator">(</button>
+      <button onclick="append(')')" class="operator">)</button>
+      <button onclick="append('/')" class="operator">÷</button>
+
+      <button onclick="append('7')">7</button>
+      <button onclick="append('8')">8</button>
+      <button onclick="append('9')">9</button>
+      <button onclick="append('*')" class="operator">×</button>
+
+      <button onclick="append('4')">4</button>
+      <button onclick="append('5')">5</button>
+      <button onclick="append('6')">6</button>
+      <button onclick="append('-')" class="operator">−</button>
+
+      <button onclick="append('1')">1</button>
+      <button onclick="append('2')">2</button>
+      <button onclick="append('3')">3</button>
+      <button onclick="append('+')" class="operator">+</button>
+
+      <button onclick="append('0')">0</button>
+      <button onclick="append('.')">.</button>
+      <button onclick="calculate()" class="equal">=</button>
+      <button onclick="append('**')" class="operator">^</button>
+
+      <button onclick="append('Math.sqrt(')" class="operator">√</button>
+      <button onclick="append('Math.PI')" class="operator">π</button>
+      <button onclick="append('%')" class="operator">%</button>
+      <button onclick="backspace()" class="operator">⌫</button>
+    </div>
+  </div>
+
+  <div class="history">
+    <h3>Calculation History</h3>
+    <ul id="history-list"></ul>
+    <button class="clear-history" onclick="clearHistory()">Clear History</button>
+  </div>
+
+  <script>
+    const display = document.getElementById("display");
+    const historyList = document.getElementById("history-list");
+
+    function append(value) {
+      display.value += value;
+    }
+
+    function clearDisplay() {
+      display.value = "";
+    }
+
+    function backspace() {
+      display.value = display.value.slice(0, -1);
+    }
+
+    function calculate() {
+      try {
+        const result = eval(display.value);
+        const expression = display.value + " = " + result;
+        display.value = result;
+        saveToHistory(expression);
+      } catch {
+        display.value = "Error";
+      }
+    }
+
+    function saveToHistory(expression) {
+      let history = JSON.parse(localStorage.getItem("calcHistory")) || [];
+      history.unshift(expression);
+      if (history.length > 20) history.pop(); // Keep only last 20
+      localStorage.setItem("calcHistory", JSON.stringify(history));
+      showHistory();
+    }
+
+    function showHistory() {
+      let history = JSON.parse(localStorage.getItem("calcHistory")) || [];
+      historyList.innerHTML = "";
+      history.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        historyList.appendChild(li);
+      });
+    }
+
+    function clearHistory() {
+      localStorage.removeItem("calcHistory");
+      showHistory();
+    }
+
+    // Show history when page loads
+    showHistory();
+  </script>
+</body>
+  </html>

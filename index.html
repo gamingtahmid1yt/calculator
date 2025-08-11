@@ -1,301 +1,858 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Calculator by Tahmid</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GroqChat Lite — Demo</title>
   <style>
-    :root {
-      --bg: #ffffff;
-      --text: #000000;
-      --btn-bg: #f0f0f0;
-      --btn-hover: #e0e0e0;
-      --btn-active: #d0d0d0;
-      --accent: #007bff;
+    /* ====== Basic Reset ====== */
+    :root{
+      --bg:#0b0b0c;
+      --panel:#0f1113;
+      --muted:#9aa3ad;
+      --accent:#2b6ea3;
+      --accent-2:#1f4f74;
+      --bubble-user:#2a2f32;
+      --bubble-bot:#0b3b57;
+      --text:#e6eef6;
+      --glass: rgba(255,255,255,0.03);
+      --pill: rgba(255,255,255,0.06);
     }
-    body.dark {
-      --bg: #1e1e1e;
-      --text: #ffffff;
-      --btn-bg: #2c2c2c;
-      --btn-hover: #3c3c3c;
-      --btn-active: #4c4c4c;
-      --accent: #00aaff;
+    [data-theme="light"]{
+      --bg:#f6f8fa;
+      --panel:#ffffff;
+      --muted:#546069;
+      --accent:#2b6ea3;
+      --accent-2:#1f4f74;
+      --bubble-user:#e9eef3;
+      --bubble-bot:#dbeefc;
+      --text:#0b1217;
+      --glass: rgba(11,18,23,0.03);
+      --pill: rgba(11,18,23,0.06);
     }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: Arial, sans-serif;
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 0 5px 10px 5px;
-      box-sizing: border-box;
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      background:linear-gradient(180deg,var(--bg),#000 80%);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:flex;
+      align-items:stretch;
+      justify-content:center;
+      padding:12px;
     }
-    .top-bar {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      max-width: 480px;
+
+    /* ====== App shell ====== */
+    .app {
+      width:100%;
+      max-width:420px;
+      height:calc(100vh - 24px);
+      display:flex;
+      flex-direction:column;
+      border-radius:18px;
+      overflow:hidden;
+      background:linear-gradient(180deg,var(--panel), rgba(0,0,0,0.25));
+      box-shadow:0 10px 30px rgba(2,6,23,0.6);
+      position:relative;
     }
-    button.refresh, button.theme-toggle {
-      background: var(--btn-bg);
-      border: none;
-      padding: 12px 20px;
-      font-size: 20px;
-      cursor: pointer;
-      border-radius: 8px;
-      user-select: none;
-      transition: background 1s;
+
+    /* Topbar */
+    .topbar{
+      height:56px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      padding:0 12px;
+      border-bottom:1px solid rgba(255,255,255,0.02);
     }
-    button.refresh:hover, button.theme-toggle:hover {
-      background: var(--btn-hover);
+    .icon-btn{
+      background:transparent;
+      border:0;
+      color:var(--text);
+      padding:8px;
+      border-radius:10px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
     }
-    .calculator {
-      max-width: 480px;
-      width: 100%;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+    .pill-btn{
+      background:var(--pill);
+      border:0;
+      color:var(--text);
+      padding:8px 12px;
+      border-radius:20px;
+      font-weight:600;
+      letter-spacing:0.6px;
+      cursor:pointer;
     }
-    #display {
-      width: 100%;
-      font-size: 34px;
-      padding: 20px 15px;
-      margin-bottom: 15px;
-      border-radius: 12px;
-      background: var(--btn-bg);
-      border: none;
-      color: var(--text);
-      text-align: right;
-      box-sizing: border-box;
-      user-select: none;
+
+    /* Main content */
+    .main {
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      padding:12px 12px 8px;
     }
-    .buttons {
-      width: 100%;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      flex-grow: 1;
+
+    .hero {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding-top:20px;
     }
-    .buttons button {
-      font-size: 26px;
-      padding: 20px 0;
-      border: none;
-      background: var(--btn-bg);
-      color: var(--text);
-      border-radius: 12px;
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.15s;
+    .bot-logo svg{filter:drop-shadow(0 6px 12px rgba(0,0,0,0.6))}
+    .hero-title{
+      font-size:20px;
+      margin:0;
+      font-weight:700;
+      text-align:center;
     }
-    .buttons button:hover {
-      background: var(--btn-hover);
+    .hero-sub{
+      color:var(--muted);
+      margin:0;
+      font-size:13px;
     }
-    .buttons button:active {
-      background: var(--btn-active);
+
+    /* Chat section */
+    .chat {
+      flex:1;
+      overflow:auto;
+      padding:8px 6px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:6px;
+      -webkit-overflow-scrolling:touch;
     }
-    .buttons button.equals {
-      grid-column: span 2;
-      background: var(--accent);
-      color: #fff;
-      font-weight: bold;
+
+    .message {
+      display:flex;
+      gap:10px;
+      align-items:flex-end;
+      max-width:100%;
     }
-    .history {
-      margin-top: 15px;
-      width: 100%;
-      max-height: 140px;
-      overflow-y: auto;
-      background: var(--btn-bg);
-      padding: 12px 15px;
-      border-radius: 12px;
-      box-sizing: border-box;
-      font-size: 16px;
+    .message.user{
+      justify-content:flex-end;
+      flex-direction:row-reverse;
     }
-    .history h3 {
-      margin: 0 0 8px;
-      font-weight: 600;
+    .avatar{
+      width:36px;
+      height:36px;
+      border-radius:10px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:var(--glass);
+      color:var(--muted);
+      font-weight:700;
+      flex-shrink:0;
+      font-size:14px;
     }
-    .history p {
-      margin: 4px 0;
-      user-select: none;
+    .bubble{
+      max-width:72%;
+      padding:10px 12px;
+      border-radius:12px;
+      line-height:1.35;
+      font-size:15px;
+      white-space:pre-wrap;
+      word-break:break-word;
+      box-shadow:0 4px 18px rgba(2,6,23,0.5);
     }
-    /* Scrollbar for history */
-    .history::-webkit-scrollbar {
-      width: 6px;
+    .message.user .bubble{
+      background:linear-gradient(180deg,var(--bubble-user), rgba(0,0,0,0.06));
+      color:var(--text);
+      border-bottom-right-radius:6px;
+      border-bottom-left-radius:12px;
     }
-    .history::-webkit-scrollbar-thumb {
-      background: var(--accent);
-      border-radius: 10px;
+    .message.bot .bubble{
+      background:linear-gradient(180deg,var(--bubble-bot), rgba(0,0,0,0.06));
+      color:var(--text);
+      border-bottom-left-radius:6px;
+      border-bottom-right-radius:12px;
     }
+    .meta{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:6px;
+      text-align:right;
+    }
+
+    /* Composer */
+    .composer{
+      height:72px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      padding:12px;
+      border-top:1px solid rgba(255,255,255,0.02);
+      background:linear-gradient(180deg,transparent, rgba(0,0,0,0.06));
+    }
+    .attach-btn{width:44px;height:44px;border-radius:16px;background:var(--pill);display:inline-flex;align-items:center;justify-content:center}
+    .prompt-input{
+      flex:1;
+      height:44px;
+      border-radius:22px;
+      border:0;
+      padding:0 14px;
+      background:var(--glass);
+      color:var(--text);
+      font-size:15px;
+      outline:none;
+    }
+    .send-btn{
+      width:52px;height:44px;border-radius:14px;border:0;background:linear-gradient(180deg,var(--accent),var(--accent-2));display:inline-flex;align-items:center;justify-content:center;color:white;cursor:pointer;
+      box-shadow:0 6px 12px rgba(20,40,80,0.25);
+    }
+
+    /* Menu panel overlay */
+    .overlay{
+      position:fixed;
+      z-index:60;
+      inset:0;
+      display:none;
+      align-items:flex-start;
+      justify-content:center;
+      padding:28px;
+    }
+    .overlay.show{display:flex}
+    .panel{
+      width:100%;
+      max-width:420px;
+      background:var(--panel);
+      border-radius:14px;
+      padding:14px;
+      box-shadow:0 18px 40px rgba(0,0,0,0.6);
+      color:var(--text);
+    }
+    .panel h3{margin:6px 0 12px;font-size:16px}
+    .list{display:flex;flex-direction:column;gap:8px}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .settings-ctrl{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+    .small{font-size:13px;color:var(--muted)}
+
+    /* Chat logs list */
+    .logs{display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow:auto;padding-right:6px}
+    .log-item{padding:10px;border-radius:10px;background:var(--glass);display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer}
+    .log-title{font-weight:700;font-size:14px}
+
+    /* typing indicator */
+    .typing{
+      display:inline-flex;gap:6px;align-items:center;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:50%;background:var(--muted);opacity:0.9;transform:translateY(0);
+      animation: bounce 1s infinite ease-in-out;
+    }
+    .dot:nth-child(2){animation-delay:0.12s}
+    .dot:nth-child(3){animation-delay:0.24s}
+    @keyframes bounce{
+      0%,100%{transform: translateY(0);opacity:0.6}
+      50%{transform: translateY(-6px);opacity:1}
+    }
+
+    /* small helpers */
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    .muted{color:var(--muted);font-size:13px}
+    .kbd{background:rgba(255,255,255,0.04);padding:6px;border-radius:6px;font-weight:700}
+    .mini{font-size:12px;color:var(--muted)}
+
+    /* responsive tweaks */
+    @media (max-height:700px){
+      .hero-title{font-size:18px}
+      .composer{height:64px}
+    }
+
   </style>
 </head>
-<body>
-  <div class="top-bar">
-    <button class="refresh" onclick="location.reload()" title="Refresh Page">🔃</button>
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Theme">🌙</button>
+<body data-theme="dark">
+  <div class="app" role="application" aria-label="GroqChat demo">
+    <header class="topbar">
+      <button id="menuBtn" class="icon-btn" title="Menu" aria-label="Open menu">
+        <!-- hamburger -->
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="2" rx="1" fill="currentColor"></rect>
+          <rect x="3" y="11" width="18" height="2" rx="1" fill="currentColor"></rect>
+          <rect x="3" y="17" width="18" height="2" rx="1" fill="currentColor"></rect>
+        </svg>
+      </button>
+
+      <div style="flex:1;text-align:center">
+        <div class="mini">GroqChat — Demo</div>
+      </div>
+
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="contactBtn" class="pill-btn">CONTACT</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <section id="hero" class="hero" aria-live="polite">
+        <div class="bot-logo" aria-hidden="true">
+          <!-- simple robot SVG -->
+          <svg width="84" height="84" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <g>
+              <path d="M32 6c-6.6 0-12 5.4-12 12v4H16c-3.3 0-6 2.7-6 6v12c0 3.3 2.7 6 6 6h1.5C20.7 46 24 49.3 24 53v1c0 1.7 1.3 3 3 3s3-1.3 3-3v-1c0-3.7 3.3-7 7.5-7H48c3.3 0 6-2.7 6-6V28c0-3.3-2.7-6-6-6h-4v-4c0-6.6-5.4-12-12-12z"
+                fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+              <circle cx="24.5" cy="28" r="3.5" fill="currentColor"/>
+              <circle cx="39.5" cy="28" r="3.5" fill="currentColor"/>
+            </g>
+          </svg>
+        </div>
+        <h1 class="hero-title">What can I help with?</h1>
+        <p id="heroExamples" class="hero-sub muted">Try: "Describe my photo", "Explain the solar system", "Write a poem"</p>
+      </section>
+
+      <section id="chat" class="chat" aria-live="polite" aria-atomic="false" tabindex="0">
+        <!-- messages injected here -->
+      </section>
+    </main>
+
+    <footer class="composer" role="contentinfo">
+      <label for="fileInput" class="attach-btn" title="Attach image or file" aria-label="Attach file">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M21 13.5V6a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h8.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M17 7v8.5A3 3 0 0 1 14 19" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </label>
+      <input id="fileInput" type="file" accept="image/*" hidden />
+
+      <input id="prompt" class="prompt-input" type="text" placeholder="Ask anything" aria-label="Ask anything" autocomplete="off" />
+
+      <button id="micBtn" class="icon-btn" title="Voice" aria-label="Voice">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 1v11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M19 11a7 7 0 0 1-14 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+
+      <button id="sendBtn" class="send-btn" title="Send" aria-label="Send">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 19V6" stroke="white" stroke-width="2" stroke-linecap="round"/><path d="M5 12l7-7 7 7" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </footer>
   </div>
-  
-  <div class="calculator">
-    <input type="text" id="display" readonly aria-label="Calculator display" />
-    <div class="buttons">
-      <button onclick="append('7')">7</button>
-      <button onclick="append('8')">8</button>
-      <button onclick="append('9')">9</button>
-      <button onclick="append('/')">÷</button>
 
-      <button onclick="append('4')">4</button>
-      <button onclick="append('5')">5</button>
-      <button onclick="append('6')">6</button>
-      <button onclick="append('*')">×</button>
+  <!-- Overlay Menu / Panels -->
+  <div id="overlay" class="overlay" aria-hidden="true">
+    <div class="panel" role="dialog" aria-modal="true">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <h3>Menu</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button id="closeMenu" class="icon-btn" title="Close">✕</button>
+        </div>
+      </div>
 
-      <button onclick="append('1')">1</button>
-      <button onclick="append('2')">2</button>
-      <button onclick="append('3')">3</button>
-      <button onclick="append('-')">−</button>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button id="openSettings" class="pill-btn">Settings</button>
+        <button id="openLogs" class="pill-btn">Chat Logs</button>
+      </div>
 
-      <button onclick="append('0')">0</button>
-      <button onclick="append('.')">.</button>
-      <button onclick="percent()">%</button>
-      <button onclick="append('+')">+</button>
+      <hr style="border:none;height:1px;background:rgba(255,255,255,0.03);margin:12px 0">
 
-      <button onclick="append('(')">(</button>
-      <button onclick="append(')')">)</button>
-      <button onclick="sqrt()">√</button>
-      <button onclick="power()">^</button>
+      <div id="menuContent">
+        <!-- menu dynamic content -->
+        <div id="settingsPane" hidden>
+          <h3>Settings</h3>
+          <div class="settings-ctrl">
+            <label class="small">Theme</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button id="themeToggle" class="pill-btn">Toggle Dark/Light</button>
+              <div class="small" id="currentThemeLabel">Dark</div>
+            </div>
 
-      <button onclick="append('Math.sin(')">sin</button>
-      <button onclick="append('Math.cos(')">cos</button>
-      <button onclick="append('Math.tan(')">tan</button>
-      <button onclick="append('Math.PI')">π</button>
+            <label class="small" style="margin-top:6px">Model</label>
+            <select id="modelSelect" style="padding:8px;border-radius:8px;background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.04)">
+              <option value="llama3">Llama 3</option>
+              <option value="mixtral">Mixtral 8x7b</option>
+              <option value="gemma2">Gemma 2</option>
+            </select>
 
-      <button onclick="backspace()">⌫</button>
-      <button onclick="clearDisplay()">C</button>
-      <button onclick="calculate()" class="equals">=</button>
-    </div>
+            <label style="margin-top:8px" class="small">Text to Speech
+              <input type="checkbox" id="ttsToggle" style="margin-left:8px" />
+            </label>
 
-    <div class="history" aria-live="polite" aria-label="Calculation history">
-      <h3>History</h3>
-      <div id="history"></div>
+            <label style="margin-top:8px" class="small">Enable Real Groq API (advanced)</label>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <input id="apiEndpoint" placeholder="POST endpoint (optional for proxy)" style="padding:8px;border-radius:8px;background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.04)" />
+              <input id="apiKey" placeholder="API key (not recommended in client)" style="padding:8px;border-radius:8px;background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.04)" />
+              <label class="small">Use Real API
+                <input type="checkbox" id="useRealApi" style="margin-left:8px" />
+              </label>
+              <div class="mini muted">Tip: For production, proxy requests server-side to keep keys safe.</div>
+            </div>
+
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button id="clearStorage" class="pill-btn">Clear Local Storage</button>
+              <button id="exportLogs" class="pill-btn">Export Logs</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="logsPane" hidden>
+          <h3>Chat Logs</h3>
+          <div class="logs" id="logsList">
+            <!-- saved logs show here -->
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px">
+            <button id="deleteAllLogs" class="pill-btn">Delete All</button>
+          </div>
+        </div>
+
+      </div>
     </div>
   </div>
-
-  <audio id="clickSound" src="https://cdn.pixabay.com/download/audio/2022/03/22/audio_aa16e50879.mp3?filename=click-124467.mp3" preload="auto"></audio>
 
   <script>
-    const display = document.getElementById("display");
-    const historyDiv = document.getElementById("history");
-    const clickSound = document.getElementById("clickSound");
-    let expression = "";
+    (function(){
+      // ======== Simple single-file chat app with local "AI image describer" and localStorage ========
+      // NOTE: This demo includes a client-side "image describer" (no external AI calls) that analyzes image dimensions
+      // and average color to create a short description. For real model integration (Groq or other), wire a server
+      // endpoint (proxy) and toggle 'Use Real API' in Settings; do NOT expose API keys in client-side code for production.
 
-    function playClick() {
-      clickSound.currentTime = 0;
-      clickSound.play();
-    }
+      // --------- Utilities & state ----------
+      const $ = (id)=>document.getElementById(id);
+      const chatEl = $('chat');
+      const promptEl = $('prompt');
+      const fileInput = $('fileInput');
+      const sendBtn = $('sendBtn');
+      const menuBtn = $('menuBtn');
+      const overlay = $('overlay');
+      const closeMenu = $('closeMenu');
+      const openSettings = $('openSettings');
+      const openLogs = $('openLogs');
+      const settingsPane = $('settingsPane');
+      const logsPane = $('logsPane');
+      const logsList = $('logsList');
+      const themeToggle = $('themeToggle');
+      const currentThemeLabel = $('currentThemeLabel');
+      const ttsToggle = $('ttsToggle');
+      const modelSelect = $('modelSelect');
+      const apiEndpoint = $('apiEndpoint');
+      const apiKey = $('apiKey');
+      const useRealApi = $('useRealApi');
+      const clearStorage = $('clearStorage');
+      const exportLogs = $('exportLogs');
+      const deleteAllLogs = $('deleteAllLogs');
 
-    function append(value) {
-      playClick();
-      expression += value;
-      display.value = expression;
-    }
+      const STORAGE_KEY = 'groqchat_v1_logs';
+      let logs = loadLogs(); // array of chat sessions; each session contains id, createdAt, messages []
+      let currentSession = null;
 
-    function clearDisplay() {
-      playClick();
-      expression = "";
-      display.value = "";
-    }
+      // If no session, create one
+      function createSession(name){
+        const s = { id: 's_'+Date.now(), title: name||('Chat '+(new Date()).toLocaleString()), createdAt:Date.now(), messages: [] };
+        logs.unshift(s);
+        saveLogs();
+        currentSession = s;
+        renderLogs();
+        renderMessages();
+      }
 
-    function backspace() {
-      playClick();
-      expression = expression.slice(0, -1);
-      display.value = expression;
-    }
+      function saveLogs(){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
+      }
+      function loadLogs(){
+        try{
+          return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        }catch(e){return []}
+      }
 
-    function sqrt() {
-      playClick();
-      expression += "Math.sqrt(";
-      display.value = expression;
-    }
+      // If we already have logs, pick the first or create new
+      if(logs.length>0){
+        currentSession = logs[0];
+      } else {
+        createSession('New Chat');
+      }
 
-    function power() {
-      playClick();
-      expression += "**";
-      display.value = expression;
-    }
-
-    function percent() {
-      playClick();
-      try {
-        // Implement smart % like Google Calculator: a % b = a * b / 100
-        let parts = expression.split("%");
-        if (parts.length === 2) {
-          let a = eval(parts[0]);
-          let b = eval(parts[1]);
-          expression = (a * b / 100).toString();
-          display.value = expression;
-        } else {
-          // If no valid format, just append %
-          expression += "%";
-          display.value = expression;
+      // --------- Rendering ----------
+      function renderMessages(){
+        chatEl.innerHTML = '';
+        if(!currentSession) return;
+        if(currentSession.messages.length === 0){
+          // show hero prompt
+          const tip = document.createElement('div');
+          tip.className = 'hero-sub muted';
+          tip.style.margin='10px';
+          tip.textContent = 'No messages yet — ask anything or upload an image.';
+          chatEl.appendChild(tip);
+          chatEl.scrollTop = chatEl.scrollHeight;
+          return;
         }
-      } catch {
-        display.value = "Error";
-        expression = "";
+        for(const msg of currentSession.messages){
+          appendMessageToDOM(msg, false);
+        }
+        chatEl.scrollTop = chatEl.scrollHeight;
       }
-    }
 
-    function calculate() {
-      playClick();
-      try {
-        // Replace unicode division/multiplication for eval safety
-        let exp = expression.replace(/÷/g, "/").replace(/×/g, "*");
-        // Eval only on safe characters
-        // Note: 'Math.' is allowed for trig and sqrt functions
-        let result = eval(exp);
-        addToHistory(expression + " = " + result);
-        expression = result.toString();
-        display.value = expression;
-      } catch {
-        display.value = "Error";
-        expression = "";
+      function appendMessageToDOM(msg, scroll=true){
+        const li = document.createElement('div');
+        li.className = 'message ' + (msg.role === 'user' ? 'user' : 'bot');
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar';
+        avatar.textContent = msg.role === 'user' ? 'You' : 'AI';
+
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+
+        if(msg.type === 'text'){
+          bubble.textContent = msg.content;
+        } else if(msg.type === 'image'){
+          // show image name and optional thumbnail if available
+          const name = document.createElement('div');
+          name.textContent = msg.content.name;
+          name.style.fontWeight='700';
+          name.style.marginBottom='6px';
+          bubble.appendChild(name);
+          if(msg.content.preview){
+            const img = document.createElement('img');
+            img.src = msg.content.preview;
+            img.style.maxWidth='180px';
+            img.style.borderRadius='8px';
+            img.style.display='block';
+            bubble.appendChild(img);
+          }
+          // if there's an AI description stored (for bot message) it's a bot text message separately
+          if(msg.content.desc){
+            const desc = document.createElement('div');
+            desc.style.marginTop='8px';
+            desc.textContent = msg.content.desc;
+            bubble.appendChild(desc);
+          }
+        }
+
+        li.appendChild(avatar);
+        li.appendChild(bubble);
+        chatEl.appendChild(li);
+        if(scroll) chatEl.scrollTop = chatEl.scrollHeight;
       }
-    }
 
-    function addToHistory(entry) {
-      let history = JSON.parse(localStorage.getItem("calcHistory")) || [];
-      history.unshift(entry);
-      if (history.length > 20) history.pop();
-      localStorage.setItem("calcHistory", JSON.stringify(history));
-      renderHistory();
-    }
+      function renderLogs(){
+        logsList.innerHTML = '';
+        for(const s of logs){
+          const item = document.createElement('div');
+          item.className = 'log-item';
+          const left = document.createElement('div');
+          left.style.display='flex';
+          left.style.flexDirection='column';
+          const title = document.createElement('div');
+          title.className='log-title';
+          title.textContent = s.title;
+          const mini = document.createElement('div');
+          mini.className='mini muted';
+          mini.textContent = new Date(s.createdAt).toLocaleString() + ' · ' + s.messages.length + ' msgs';
+          left.appendChild(title);
+          left.appendChild(mini);
 
-    function renderHistory() {
-      const history = JSON.parse(localStorage.getItem("calcHistory")) || [];
-      historyDiv.innerHTML = history.map(item => `<p>${item}</p>`).join("");
-    }
+          const actions = document.createElement('div');
+          actions.style.display='flex';
+          actions.style.gap='8px';
+          const openBtn = document.createElement('button');
+          openBtn.className='pill-btn';
+          openBtn.textContent = 'Open';
+          openBtn.onclick = ()=>{ currentSession = s; renderMessages(); hideOverlay(); }
+          const delBtn = document.createElement('button');
+          delBtn.className='icon-btn';
+          delBtn.textContent = 'Del';
+          delBtn.onclick = ()=>{
+            if(!confirm('Delete this log?')) return;
+            logs = logs.filter(x=>x.id!==s.id);
+            if(logs.length) currentSession = logs[0]; else createSession('New Chat');
+            saveLogs(); renderLogs(); renderMessages();
+          };
+          actions.appendChild(openBtn);
+          actions.appendChild(delBtn);
 
-    function toggleTheme() {
-      const isDark = document.body.classList.toggle("dark");
-      localStorage.setItem("theme", isDark ? "dark" : "light");
-      document.querySelector(".theme-toggle").innerText = isDark ? "☀️" : "🌙";
-    }
-
-    function loadTheme() {
-      const theme = localStorage.getItem("theme");
-      if (theme === "dark") {
-        document.body.classList.add("dark");
-        document.querySelector(".theme-toggle").innerText = "☀️";
+          item.appendChild(left);
+          item.appendChild(actions);
+          logsList.appendChild(item);
+        }
       }
-    }
 
-    window.onload = () => {
-      renderHistory();
-      loadTheme();
-    };
+      // --------- Chat actions ----------
+      function addMessage(role, type, content){
+        const msg = { id:'m_'+Date.now()+'_'+Math.random().toString(36).slice(2,7), role, type, content, ts:Date.now() };
+        currentSession.messages.push(msg);
+        saveLogs();
+        appendMessageToDOM(msg);
+        return msg;
+      }
+
+      function botReplyText(text, streaming=true){
+        // simulate streaming: gradually append text char by char
+        if(!streaming){
+          addMessage('bot','text', text);
+          return;
+        }
+        const placeholder = { id:'tmp_'+Date.now(), role:'bot', type:'text', content:'', ts:Date.now() };
+        currentSession.messages.push(placeholder);
+        saveLogs();
+        // append DOM element and update text progressively
+        const li = document.createElement('div');
+        li.className = 'message bot';
+        const avatar = document.createElement('div'); avatar.className='avatar'; avatar.textContent='AI';
+        const bubble = document.createElement('div'); bubble.className='bubble';
+        li.appendChild(avatar); li.appendChild(bubble);
+        chatEl.appendChild(li); chatEl.scrollTop = chatEl.scrollHeight;
+        let i=0;
+        const timer = setInterval(()=>{
+          i++;
+          bubble.textContent = text.slice(0,i);
+          currentSession.messages[currentSession.messages.length-1].content = bubble.textContent;
+          saveLogs();
+          chatEl.scrollTop = chatEl.scrollHeight;
+          if(i>=text.length){
+            clearInterval(timer);
+            // optionally speak
+            if(ttsToggle.checked) speakText(text);
+          }
+        }, 10 + Math.random()*20);
+      }
+
+      // TTS
+      function speakText(text){
+        if(!('speechSynthesis' in window)) return;
+        const ut = new SpeechSynthesisUtterance(text);
+        ut.lang = 'en-US';
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(ut);
+      }
+
+      // --------- Image handling & "AI description" (client-side) ----------
+      async function describeImageClientSide(file){
+        // returns a short description string after analyzing image
+        // read file as dataURL
+        const dataUrl = await new Promise((res,rej)=>{
+          const r = new FileReader();
+          r.onload = ()=>res(r.result);
+          r.onerror = ()=>rej();
+          r.readAsDataURL(file);
+        });
+        // load into Image, draw to canvas, get average color and size
+        const img = new Image();
+        img.src = dataUrl;
+        await new Promise((res)=>img.onload = res);
+        const w = img.naturalWidth, h = img.naturalHeight;
+        // draw to small canvas
+        const cnv = document.createElement('canvas');
+        const max = 120;
+        const scale = Math.min(1, max / Math.max(w,h));
+        cnv.width = Math.max(1, Math.round(w*scale));
+        cnv.height = Math.max(1, Math.round(h*scale));
+        const ctx = cnv.getContext('2d');
+        ctx.drawImage(img,0,0,cnv.width,cnv.height);
+        const data = ctx.getImageData(0,0,cnv.width,cnv.height).data;
+        let r=0,g=0,b=0,count=0;
+        for(let i=0;i<data.length;i+=4){
+          const a = data[i+3];
+          if(a<128) continue;
+          r += data[i]; g += data[i+1]; b += data[i+2]; count++;
+        }
+        if(count===0) count=1;
+        r = Math.round(r/count); g = Math.round(g/count); b = Math.round(b/count);
+        // decide color name roughly
+        const colorName = approximateColorName(r,g,b);
+        // small file info
+        const sizeKb = Math.round(file.size/1024);
+        // build a friendly description
+        const desc = `Image "${file.name}" — ${w}×${h}px, ${sizeKb}KB. Dominant color: ${colorName} (rgb ${r},${g},${b}).`;
+        return { text:desc, preview:dataUrl };
+      }
+
+      function approximateColorName(r,g,b){
+        // very naive mapping
+        if(r>200 && g>200 && b>200) return 'very light / near white';
+        if(r>200 && g<100 && b<100) return 'red';
+        if(g>200 && r<120 && b<120) return 'green';
+        if(b>180 && r<120 && g<120) return 'blue';
+        if(r>200 && g>150 && b<120) return 'yellowish';
+        if(r>150 && g>100 && b>150) return 'pink/purple';
+        if(r<60 && g<60 && b<60) return 'dark';
+        return 'muted';
+      }
+
+      // --------- Attach/upload events ----------
+      fileInput.addEventListener('change', async (e)=>{
+        const file = e.target.files && e.target.files[0];
+        if(!file) return;
+        // add user message with image (name + preview)
+        const info = { name:file.name, size:file.size, type:file.type, preview:null, desc:null };
+        addMessage('user','image', info);
+        renderMessages();
+        // Describe with AI (client-side) & add bot reply
+        try{
+          const { text, preview } = await describeImageClientSide(file);
+          // store preview & desc back into the last user message
+          const last = currentSession.messages[currentSession.messages.length-1];
+          if(last && last.type==='image'){
+            last.content.preview = preview;
+            saveLogs(); renderMessages();
+          }
+          // call real API if enabled (code below) otherwise use client description
+          if(useRealApi.checked && apiKey.value.trim()){
+            // Example: call your server proxy or direct endpoint
+            // IMPORTANT: Do not put real API keys in client-side code for production.
+            // This demo tries POSTing to apiEndpoint if provided, otherwise falls back.
+            const endpoint = apiEndpoint.value.trim() || null;
+            try{
+              const reply = await callGroqImageDescribe({file, endpoint});
+              if(reply && reply.trim()){
+                addMessage('bot','text', reply);
+                renderMessages();
+              } else {
+                addMessage('bot','text', text);
+                renderMessages();
+              }
+            }catch(err){
+              console.warn('API describe failed, using local', err);
+              addMessage('bot','text', text);
+              renderMessages();
+            }
+          } else {
+            addMessage('bot','text', text);
+            renderMessages();
+          }
+        }catch(err){
+          console.error(err);
+          addMessage('bot','text','Sorry, failed to read the image.');
+          renderMessages();
+        } finally {
+          fileInput.value = '';
+        }
+      });
+
+      // --------- Send text prompt ----------
+      sendBtn.addEventListener('click', onSend);
+      promptEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); onSend(); } });
+
+      function onSend(){
+        const v = promptEl.value && promptEl.value.trim();
+        if(!v) return;
+        addMessage('user','text', v);
+        promptEl.value='';
+        renderMessages();
+        // If real API requested, call it; else do a fake reply
+        if(useRealApi.checked && apiKey.value.trim()){
+          // call a real model (user must supply endpoint + key, or proxy)
+          callGroqTextModel(v).then(reply=>{
+            botReplyText(reply || 'No reply from model.');
+          }).catch(err=>{
+            console.error(err);
+            botReplyText('Failed to contact API, showing demo reply.');
+          });
+        } else {
+          // demo reply: echo + small transform
+          const reply = demoReply(v);
+          botReplyText(reply, true);
+        }
+      }
+
+      function demoReply(text){
+        // simple canned "AI" functionality:
+        if(/describe/i.test(text) && /photo|image|picture/.test(text)){
+          return 'Drop an image using the attach button — I can analyze dimensions and dominant color right in your browser.';
+        }
+        if(text.length < 30) return 'Nice — you said: "'+text+'". Want me to expand on that?';
+        return 'I read that. Here is a short summary: '+text.slice(0,180)+(text.length>180?'...':'');
+      }
+
+      // --------- Menu / settings interactions ----------
+      menuBtn.onclick = ()=>{ overlay.classList.add('show'); overlay.setAttribute('aria-hidden','false'); showPane('settings'); };
+      closeMenu.onclick = ()=>hideOverlay();
+      openSettings.onclick = ()=>showPane('settings');
+      openLogs.onclick = ()=>showPane('logs');
+
+      function hideOverlay(){ overlay.classList.remove('show'); overlay.setAttribute('aria-hidden','true'); }
+      function showPane(which){
+        settingsPane.hidden = true; logsPane.hidden = true;
+        if(which==='settings'){ settingsPane.hidden = false; }
+        else { logsPane.hidden = false; }
+        renderLogs();
+      }
+
+      themeToggle.onclick = ()=>{
+        const root = document.body;
+        const current = root.getAttribute('data-theme')||'dark';
+        const next = current === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        currentThemeLabel.textContent = next.charAt(0).toUpperCase()+next.slice(1);
+      };
+
+      clearStorage.onclick = ()=>{
+        if(!confirm('Clear local storage (all chats)?')) return;
+        localStorage.removeItem(STORAGE_KEY);
+        logs = []; currentSession = null; createSession('New Chat');
+        renderLogs(); renderMessages();
+        alert('Cleared');
+      };
+
+      exportLogs.onclick = ()=>{
+        const blob = new Blob([JSON.stringify(logs, null, 2)], {type:'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'groqchat_logs.json'; a.click(); URL.revokeObjectURL(url);
+      };
+
+      deleteAllLogs.onclick = ()=>{ if(confirm('Delete all logs?')){ logs=[]; currentSession=null; createSession('New Chat'); saveLogs(); renderLogs(); renderMessages(); } };
+
+      // Initialize UI
+      renderLogs();
+      renderMessages();
+
+      // --------- Real API stubs (user may wire these) ----------
+      async function callGroqTextModel(prompt){
+        // Example: client-side direct call (not recommended). Better: HTTP POST to server proxy which calls Groq with your key.
+        // Expectation: user sets apiEndpoint to their proxy endpoint. If blank, throw.
+        const endpoint = apiEndpoint.value.trim();
+        if(!endpoint) throw new Error('No API endpoint configured. Add a server proxy in settings.');
+        // Example payload — adapt to your server/proxy expectations
+        const payload = { model: modelSelect.value || 'llama3', prompt, max_tokens: 512 };
+        const res = await fetch(endpoint, {
+          method:'POST',
+          headers: { 'Content-Type':'application/json', 'Authorization': apiKey.value ? ('Bearer '+apiKey.value) : '' },
+          body: JSON.stringify(payload)
+        });
+        if(!res.ok) throw new Error('API error: '+res.status);
+        const data = await res.json();
+        // Expected: { text: '...' } or similar. Adapt as needed.
+        return data.text || data.reply || (data.choices && data.choices[0] && data.choices[0].text) || JSON.stringify(data);
+      }
+
+      async function callGroqImageDescribe({file, endpoint=null}){
+        // If user has a server proxy that accepts multipart/form-data and returns JSON { text: "desc" }
+        endpoint = endpoint || apiEndpoint.value.trim();
+        if(!endpoint) throw new Error('No endpoint for image describe');
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('model', modelSelect.value || 'llama3');
+        const res = await fetch(endpoint, { method:'POST', headers: apiKey.value ? { 'Authorization': 'Bearer '+apiKey.value } : {}, body: fd });
+        if(!res.ok) throw new Error('API error: '+res.status);
+        const j = await res.json();
+        // adapt to your result
+        return j.text || j.description || j.reply || JSON.stringify(j);
+      }
+
+      // --------- Helpers & small polish ----------
+      // Save UI preferences
+      (function loadPrefs(){
+        const theme = localStorage.getItem('groqchat_theme') || 'dark';
+        document.body.setAttribute('data-theme', theme);
+        currentThemeLabel.textContent = theme.charAt(0).toUpperCase()+theme.slice(1);
+        const tts = localStorage.getItem('groqchat_tts') === '1';
+        ttsToggle.checked = tts;
+        ttsToggle.addEventListener('change', ()=>localStorage.setItem('groqchat_tts', ttsToggle.checked ? '1' : '0'));
+        // model
+        const m = localStorage.getItem('groqchat_model') || 'llama3';
+        modelSelect.value = m;
+        modelSelect.addEventListener('change', ()=>localStorage.setItem('groqchat_model', modelSelect.value));
+      })();
+
+      // simple approximate memory saver
+      window.addEventListener('beforeunload', ()=>saveLogs());
+
+    })();
   </script>
 </body>
 </html>
